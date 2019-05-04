@@ -1,6 +1,8 @@
 package rc.legostore.persistence;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import rc.legostore.model.DeliveryInfo;
 import rc.legostore.model.LegoSet;
@@ -8,16 +10,20 @@ import rc.legostore.model.LegoSetDifficulty;
 import rc.legostore.model.ProductReview;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 
 @Service
 public class DbSeeder implements CommandLineRunner {
-
+    private MongoTemplate legoSetRepository;
+    @Autowired
+    public DbSeeder(MongoTemplate legoSetRepository) {
+        this.legoSetRepository = legoSetRepository;
+    }
     @Override
     public void run(String... args) {
-        /*
-        Lego Sets
-         */
+        legoSetRepository.dropCollection( LegoSet.class);
 
         LegoSet milleniumFalcon = new LegoSet(
                 "Millennium Falcon",
@@ -30,7 +36,6 @@ public class DbSeeder implements CommandLineRunner {
                         new ProductReview("John", 8)
                 )
         );
-
         LegoSet skyPolice = new LegoSet(
                 "Sky Police Air Base",
                 "City",
@@ -41,7 +46,6 @@ public class DbSeeder implements CommandLineRunner {
                         new ProductReview("Andrew", 8)
                 )
         );
-
         LegoSet mcLarenSenna = new LegoSet(
                 "McLaren Senna",
                 "Speed Champions",
@@ -52,7 +56,6 @@ public class DbSeeder implements CommandLineRunner {
                         new ProductReview("Christa", 9)
                 )
         );
-
         LegoSet mindstormsEve = new LegoSet(
                 "MINDSTORMS EV3",
                 "Mindstorms",
@@ -64,5 +67,8 @@ public class DbSeeder implements CommandLineRunner {
                         new ProductReview("James", 10)
                 )
         );
+
+        Collection<LegoSet> legoSets = Arrays.asList( milleniumFalcon, skyPolice, mcLarenSenna, mindstormsEve);
+        legoSetRepository.insertAll( legoSets);
     }
 }
