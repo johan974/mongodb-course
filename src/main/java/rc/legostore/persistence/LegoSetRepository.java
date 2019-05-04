@@ -13,12 +13,15 @@ import java.util.Collection;
 
 @Repository
 public interface LegoSetRepository extends MongoRepository<LegoSet, String>, QuerydslPredicateExecutor<LegoSet> {
+    Collection<LegoSet> findAllByThemeContains(String theme);
+
     Collection<LegoSet> findAllByThemeContains(String theme, Sort sort);
 
     Collection<LegoSet> findAllByDifficultyAndNameStartsWith(LegoSetDifficulty difficulty, String name);
 
     Collection<LegoSet> findAllBy(TextCriteria textCriteria);
 
+    // Criteria copieeren uit Robo 3T query: verander ?0
     @Query("{'delivery.deliveryFee' : {$lt : ?0}}")
     Collection<LegoSet> findAllByDeliveryPriceLessThan(int price);
 

@@ -40,28 +40,33 @@ public class LegoStoreOnRepositoryController {
         this.legoSetRepository.deleteById(id);
     }
 
-//    @GetMapping("/{id}")
-//    public LegoSet byId(@PathVariable String id) {
-//        LegoSet legoSet = (LegoSet) this.legoSetRepository.findById(id).orElse(null);
-//        return legoSet;
-//    }
+    @GetMapping("/{id}")
+    public LegoSet byId(@PathVariable String id) {
+        LegoSet legoSet = legoSetRepository.findById(id).orElse(null);
+        return legoSet;
+    }
 
-//    @GetMapping("/byTheme/{theme}")
-//    public Collection<LegoSet> byTheme(@PathVariable String theme) {
-//        Sort sortByThemeAsc = Sort.by("theme").ascending();
-//        return this.legoSetRepository.findAllByThemeContains(theme, sortByThemeAsc);
-//    }
-//
-//    @GetMapping("hardThatStartWithM")
-//    public Collection<LegoSet> hardThatStartWithM() {
-//        return this.legoSetRepository.findAllByDifficultyAndNameStartsWith(LegoSetDifficulty.HARD, "M");
-//    }
-//
-//    @GetMapping("byDeliveryFeeLessThan/{price}")
-//    public Collection<LegoSet> byDeliveryFeeLessThan(@PathVariable int price) {
-//        return this.legoSetRepository.findAllByDeliveryPriceLessThan(price);
-//    }
-//
+    @GetMapping("/byThemeSimple/{theme}")
+    public Collection<LegoSet> byThemeNoSorting(@PathVariable String theme) {
+        return this.legoSetRepository.findAllByThemeContains(theme);
+    }
+
+    @GetMapping("/byTheme/{theme}")
+    public Collection<LegoSet> byTheme(@PathVariable String theme) {
+        Sort sortByThemeAsc = Sort.by("theme").ascending();
+        return this.legoSetRepository.findAllByThemeContains(theme, sortByThemeAsc);
+    }
+
+    @GetMapping("hardThatStartWithM")
+    public Collection<LegoSet> hardThatStartWithM() {
+        return this.legoSetRepository.findAllByDifficultyAndNameStartsWith(LegoSetDifficulty.HARD, "M");
+    }
+
+    @GetMapping("byDeliveryFeeLessThan/{price}")
+    public Collection<LegoSet> byDeliveryFeeLessThan(@PathVariable int price) {
+        return this.legoSetRepository.findAllByDeliveryPriceLessThan(price);
+    }
+
 //    @GetMapping("greatReviews")
 //    public Collection<LegoSet> byGreatReviews() {
 //        return this.legoSetRepository.findAllByGreatReviews();
