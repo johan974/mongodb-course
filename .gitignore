@@ -2,6 +2,7 @@
 .idea/
 logs/
 teststuff/
+mongodbcourse.iml
 
 # compiled output
 /dist
