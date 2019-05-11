@@ -6,14 +6,16 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.lt;
+import java.util.function.Consumer;
+
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
-public class MongoDbClient {
+public class MongoDbClientStandAlone {
     public static void main(String[] args) {
         // MongoClientURI connectionString = new MongoClientURI("mongodb://hostOne:27017,hostTwo:27017");
         // MongoClient mongoClient = new MongoClient(connectionString);
@@ -22,7 +24,7 @@ public class MongoDbClient {
         MongoDatabase database = mongoClient.getDatabase("legostore");
         MongoCollection<Document> collection = database.getCollection("legoSet");
 
-        MongoDbClient dbClient = new MongoDbClient();
+        MongoDbClientStandAlone dbClient = new MongoDbClientStandAlone();
 
         dbClient.testCursor( collection);
 
@@ -37,9 +39,36 @@ public class MongoDbClient {
         //dbClient.insertManyFromJson(  collection);
         dbClient.readSelect(  collection);
 
-        dbClient.crudUpdate(  collection);
+        // dbClient.crudUpdate(  collection);
 
+        dbClient.updateOneById( collection);
 
+        // projection
+        System.out.println( "Projection: ");
+        collection.find()
+                .projection(new Document("item", 1).append("tags", 1).append("_id", 0))
+                .forEach( (Consumer) doc -> {
+                    System.out.println( "Doc: " + doc);
+                });
+
+        Document myDoc = collection.find(  eq( "item", "postcard2")).first();
+        System.out.println( "Find1document: " + myDoc.toJson());
+        System.out.println( "Item: " + myDoc.get( "item"));
+
+        // Deeper queries
+        myDoc = collection.find(  eq( "size.h", 8.5)).first();
+        System.out.println( "Size.h: " + myDoc.toJson());
+
+        // map
+        collection.find().map( doc -> { return doc.get( "item"); })
+                .forEach( (Consumer) doc -> {
+                    System.out.println( "DocItem: " + doc);
+                });
+
+        collection.find().map( doc -> { return doc.get( "size"); })
+                .forEach( (Consumer) doc -> {
+                    System.out.println( "DocTags: " + doc);
+                });
 
     }
 
@@ -57,6 +86,7 @@ public class MongoDbClient {
     private void testFindName(MongoCollection<Document> collection, String name) {
         Document myDoc = collection.find(  eq( "name", "Millennium Falcon")).first();
         System.out.println( "Find document: " + myDoc.toJson());
+        System.out.println( "Item: " + myDoc.get( "name"));
     }
 
     private void insertDocumentByAppending() {}
@@ -185,6 +215,18 @@ public class MongoDbClient {
 
         collection.updateMany(lt("qty", 50),
                 combine(set("size.uom", "in"), set("status", "P"), currentDate("lastModified")));
+    }
+
+    private void updateOneById( MongoCollection<Document> collection) {
+        ObjectId objectId = new ObjectId( "5cd68256a81ad927c51bcf96");
+        Document myDoc = collection.find(  eq( "_id", objectId)).first();
+        System.out.println( "Find 1 by id: " + myDoc.toJson());
+
+        collection.updateOne(eq("_id", objectId),
+                combine( set("status", "X")));
+
+        myDoc = collection.find(  eq( "_id", objectId)).first();
+        System.out.println( "Find 1 by id: " + myDoc.toJson());
     }
 
     private void replaceOne( MongoCollection<Document> collection) {
